@@ -68,4 +68,4 @@ class Api {
 extension TrimmedCaseInsensitiveContain on String {
   bool trimmedContains(String other) =>
       trim().toLowerCase().contains(other.trim().toLowerCase());
-}
+}///
