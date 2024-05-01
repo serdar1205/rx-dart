@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:rx_dart/views/home_page.dart';
 import 'package:rxdart/rxdart.dart';
 
 void main() {
@@ -18,13 +19,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const HomePage2(),
     );
   }
 }
 
-class HomePage extends HookWidget {
-  const HomePage({super.key});
+class HomePage1 extends HookWidget {
+  const HomePage1({super.key});
 
   @override
   Widget build(BuildContext context) {
