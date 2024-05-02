@@ -33,9 +33,10 @@ void test() async {
       const Duration(seconds: 1), (count) => 'Stream 1, count = $count').take(3);
 
   final stream2 = Stream.periodic(
-      const Duration(seconds: 2), (count) => 'Stream 2, count = $count').take(10);
-
-  final result = stream1.mergeWith([stream2]);
+      const Duration(seconds: 3), (count) => 'Stream 2, count = $count').take(10);
+  /// 3 sekunt gecyanca result print etmeyar
+  final result = Rx.zip2(stream1, stream2, (a, b) =>
+  'Zipped result, A = ($a), B = ($b)');
 
   await for (final value in result) {
     value.log();
