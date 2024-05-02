@@ -35,7 +35,7 @@ void test() async {
   final stream2 = Stream.periodic(
       const Duration(seconds: 2), (count) => 'Stream 2, count = $count').take(10);
 
-  final result = stream1.concatWith([stream2]);
+  final result = stream1.mergeWith([stream2]);
 
   await for (final value in result) {
     value.log();
