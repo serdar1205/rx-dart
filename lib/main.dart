@@ -30,18 +30,14 @@ class MyApp extends StatelessWidget {
 
 void test() async {
   final stream1 = Stream.periodic(
-      const Duration(seconds: 1), (count) => 'Stream 1, count = $count');
+      const Duration(seconds: 1), (count) => 'Stream 1, count = $count').take(3);
 
   final stream2 = Stream.periodic(
-      const Duration(seconds: 3), (count) => 'Stream 2, count = $count');
+      const Duration(seconds: 2), (count) => 'Stream 2, count = $count').take(10);
 
-  final combined = Rx.combineLatest2(
-      stream1,
-      stream2,
-      (lastValueOfStream1, lastValueOfStream2) =>
-          'lastValueOfStream1 = ($lastValueOfStream1), lastValueOfStream2 = ($lastValueOfStream2)');
+  final result = stream1.concatWith([stream2]);
 
-  await for (final value in combined) {
+  await for (final value in result) {
     value.log();
   }
 }
