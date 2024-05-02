@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:rx_dart/views/home_page.dart';
 import 'package:rxdart/rxdart.dart';
+import 'dart:developer' as devtools show log;
+
+extension Log on Object {
+  void log() => devtools.log(toString());
+}
 
 void main() {
   runApp(const MyApp());
@@ -19,35 +23,38 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage2(),
+      home: const HomePage(),
     );
   }
 }
 
-class HomePage1 extends HookWidget {
-  const HomePage1({super.key});
+void test() async {
+  final stream1 = Stream.periodic(
+      const Duration(seconds: 1), (count) => 'Stream 1, count = $count');
+
+  final stream2 = Stream.periodic(
+      const Duration(seconds: 3), (count) => 'Stream 2, count = $count');
+
+  final combined = Rx.combineLatest2(
+      stream1,
+      stream2,
+      (lastValueOfStream1, lastValueOfStream2) =>
+          'lastValueOfStream1 = ($lastValueOfStream1), lastValueOfStream2 = ($lastValueOfStream2)');
+
+  await for (final value in combined) {
+    value.log();
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final subject = useMemoized(() => BehaviorSubject<String>(), [key]);
-
-    useEffect(() => subject.close, [subject]);
+    test();
     return Scaffold(
-      appBar: AppBar(
-        title: StreamBuilder<String>(
-          stream: subject.stream.distinct().debounceTime(const Duration(seconds: 1)),
-          initialData: 'Start typing ...',
-          builder: (context, snapshot) {
-            return  Text(snapshot.requireData);
-          }
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextField(
-          onChanged: subject.sink.add,
-        ),
-      ),
+      appBar: AppBar(title: Text('Home page')),
+      body: Container(),
     );
   }
 }
