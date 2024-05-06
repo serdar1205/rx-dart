@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:developer' as devtools show log;
 
@@ -28,30 +27,55 @@ class MyApp extends StatelessWidget {
   }
 }
 
-void test() async {
-  final stream1 = Stream.periodic(
-      const Duration(seconds: 1), (count) => 'Stream 1, count = $count').take(3);
-
-  final stream2 = Stream.periodic(
-      const Duration(seconds: 3), (count) => 'Stream 2, count = $count').take(10);
-  /// 3 sekunt gecyanca result print etmeyar
-  final result = Rx.zip2(stream1, stream2, (a, b) =>
-  'Zipped result, A = ($a), B = ($b)');
-
-  await for (final value in result) {
-    value.log();
-  }
-}
-
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late final BehaviorSubject<DateTime> subject;
+  late final Stream<String> streamOfStrings;
+
+  @override
+  void initState() {
+    super.initState();
+    subject = BehaviorSubject<DateTime>();
+    streamOfStrings = subject.switchMap((dateTime) => Stream.periodic(
+        const Duration(seconds: 1),
+        (count) => 'Stream count = $count, dateTime = $dateTime'));
+  }
+
+  @override
+  void dispose() {
+    subject.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    test();
     return Scaffold(
-      appBar: AppBar(title: Text('Home page')),
-      body: Container(),
+      appBar: AppBar(title: const Text('Home page')),
+      body: Column(
+        children: [
+
+          StreamBuilder<String>(
+              stream: streamOfStrings,
+              builder: (context, snapshot){
+                if (snapshot.hasData) {
+                  final string = snapshot.requireData;
+                  return Text(string);
+                }  else{
+                  return const Text('Press the button');
+                }
+              }),
+
+          TextButton(onPressed: (){
+            subject.add(DateTime.now());
+          }, child: const Text('Start the stream'))
+        ],
+      ),
     );
   }
 }
